@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Champs Sports - 2:00 AM</title>
+    <style>
+        body {
+            background-color: #050505;
+            color: #d3d3d3;
+            font-family: "Courier New", Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #game-window {
+            width: 600px;
+            border: 2px solid #333;
+            background-color: #111;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.8);
+        }
+        .header { text-align: center; margin-bottom: 20px; font-weight: bold; color: #888; }
+        .stat-row { display: flex; justify-content: space-between; margin: 10px 0; }
+        progress { width: 70%; height: 20px; }
+        progress::-webkit-progress-value { background-color: #aaa; }
+        
+        #log {
+            background: #000;
+            border: 1px solid #444;
+            height: 120px;
+            margin: 20px 0;
+            padding: 10px;
+            overflow-y: auto;
+            font-size: 14px;
+            color: #aaa;
+        }
+        .crates {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        button {
+            background-color: #222;
+            color: #ddd;
+            border: 1px solid #555;
+            padding: 15px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover { background-color: #444; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<div id="game-window">
+    <div class="header">CHAMPS SPORTS - SECURE AREA</div>
+    
+    <div class="stat-row">
+        <span>HUNGER</span>
+        <progress id="bar-hunger" value="100" max="100"></progress>
+    </div>
+    <div class="stat-row">
+        <span>THIRST</span>
+        <progress id="bar-thirst" value="100" max="100"></progress>
+    </div>
+    <div class="stat-row">
+        <span>SANITY</span>
+        <progress id="bar-sanity" value="100" max="100"></progress>
+    </div>
+
+    <div id="log">The security grate is locked. The fog outside the glass is thick. You are not alone in this mall.</div>
+
+    <div class="crates">
+        <button onclick="action('food')">[ CRATE 1 ]<br>Energy Bars</button>
+        <button onclick="action('drink')">[ CRATE 2 ]<br>Sports Drinks</button>
+        <button onclick="action('weapon')">[ CRATE 3 ]<br>Golf Clubs</button>
+        <button onclick="action('comfort')">[ CRATE 4 ]<br>Display Tents</button>
+    </div>
+</div>
+
+<script>
+    let stats = { hunger: 100, thirst: 100, sanity: 100 };
+    let alive = true;
+
+    function updateUI() {
+        document.getElementById('bar-hunger').value = stats.hunger;
+        document.getElementById('bar-thirst').value = stats.thirst;
+        document.getElementById('bar-sanity').value = stats.sanity;
+        
+        if (stats.hunger <= 0 || stats.thirst <= 0 || stats.sanity <= 0) {
+            alive = false;
+            logEvent("You have succumbed to the mall.");
+            document.querySelectorAll('button').forEach(b => b.disabled = true);
+        }
+    }
+
+    function logEvent(msg) {
+        const logBox = document.getElementById('log');
+        logBox.innerHTML += `<br>> ${msg}`;
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function action(type) {
+        if (!alive) return;
+
+        if (type === 'food') {
+            stats.hunger = Math.min(100, stats.hunger + 25);
+            logEvent("You force down a stale protein bar.");
+        } else if (type === 'drink') {
+            stats.thirst = Math.min(100, stats.thirst + 30);
+            logEvent("You chug warm electrolytes.");
+        } else if (type === 'weapon') {
+            logEvent("You grip a 9-iron. A shadow shifts against the glass storefront. You brace yourself.");
+            stats.sanity = Math.min(100, stats.sanity + 10);
+        } else if (type === 'comfort') {
+            stats.sanity = Math.min(100, stats.sanity + 40);
+            stats.hunger -= 20;
+            stats.thirst -= 30;
+            logEvent("You zip yourself into a display tent. Hours pass. The quiet is worse.");
+        }
+        updateUI();
+    }
+
+    // Environmental Drain Loop
+    setInterval(() => {
+        if (!alive) return;
+        stats.hunger -= 1;
+        stats.thirst -= 2;
+        
+        if (Math.random() < 0.2) {
+            stats.sanity -= 15;
+            logEvent("The mall's PA system crackles to life with distorted Muzak.");
+        }
+        updateUI();
+    }, 3000); // Ticks every 3 seconds
+</script>
+
+</body>
+</html>
